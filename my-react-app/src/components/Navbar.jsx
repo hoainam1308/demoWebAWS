@@ -12,7 +12,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="navbar">
+    <nav className="nav-inner">
       <Link to="/">🏠 Trang chủ</Link>
       <Link to="/cart">🛒 Giỏ hàng</Link>
       {user?.role === 'admin' && <Link to="/admin">🔧 Quản trị</Link>}

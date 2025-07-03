@@ -1,4 +1,4 @@
-const {getAllProducts, createProduct, getProductById, updateProduct, getProductBySlug, getProductByCategory} = require('../services/productServices');
+const {getAllProducts, createProduct, getProductById, updateProduct, getProductBySlug, getProductByCategory, updatedProductImage} = require('../services/productServices');
 const {getCategoryBySlug} = require('../services/categoryServices');
 const { CreateSuccessResponse, CreateErrorResponse } = require('../handlers/responseHandler');
 const slugify = require('slugify');
@@ -61,6 +61,25 @@ const UpdateProduct = async (req, res) => {
         return CreateErrorResponse(res, 500, 'Internal server error');
     }
 };
+
+const UpdatedProductImage = async (req, res) => {
+    try {
+        const productId = req.params.id;
+        if (!req.file) {
+            return CreateErrorResponse(res, 400, 'Image file is required');
+        }
+        const imagePath = `/uploads/${req.file.filename}`;
+        const updatedProduct = await updatedProductImage(productId, imagePath);
+        if (!updatedProduct) {
+            return CreateErrorResponse(res, 404, 'Product not found');
+        }
+        return CreateSuccessResponse(res, 200, updatedProduct);
+    } catch (error) {
+        console.error("Error updating product image:", error);
+        return CreateErrorResponse(res, 500, 'Internal server error');
+    }
+}
+
 const GetProductBySlug = async (req, res) => {
     try {
         const slug = req.params.slug;
@@ -93,5 +112,6 @@ module.exports = {
     GetProductById,
     UpdateProduct,
     GetProductBySlug,
-    GetProductByCategory
+    GetProductByCategory,
+    UpdatedProductImage
 };

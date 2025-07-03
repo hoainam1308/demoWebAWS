@@ -1,4 +1,4 @@
-const {Login, Register, GgoogleLogin} = require('../controllers/authController');
+const {Login, Register, GgoogleLogin, Logout} = require('../controllers/authController');
 const express = require('express');
 const router = express.Router();
 
@@ -8,5 +8,7 @@ router.post('/login', Login);
 router.post('/register', Register);
 // POST Google login
 router.post('/google-login', GgoogleLogin);
+// POST logout
+router.post('/logout', Logout);
 
 module.exports = router;

@@ -1,32 +1,78 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
+import { useAuth } from '../contexts/AuthContext';
+import './Login.css'; // 💡 tạo file CSS riêng
 
-export function Login() {
+export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const { setUser } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:3000/auths/login', { email, password }, { withCredentials: true });
+      const res = await axios.post('http://localhost:3000/auths/login', { email, password }, { withCredentials: true });
+      setUser(res.data.data);
       navigate('/');
     } catch (error) {
       alert('Login failed');
     }
   };
 
+  const handleGoogleLogin = async (credentialResponse) => {
+    try {
+      const res = await axios.post('http://localhost:3000/auths/google-login', {
+        token: credentialResponse.credential,
+      }, { withCredentials: true });
+      alert('Google login successful');
+      setUser(res.data.data);
+      navigate('/');
+    }
+    catch (err) {
+      console.error(err);
+      alert('Google login failed');
+    }
+  };
+
+  const handleGoogleFailure = (error) => {
+    console.error('Google login failed:', error);
+    alert('Google login failed');
+  };
+
   return (
-    <div className="max-w-md mx-auto mt-20 p-6 border rounded-xl shadow">
-      <h1 className="text-2xl font-bold mb-4">Đăng nhập</h1>
-      <form onSubmit={handleSubmit}>
-        <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email"
-          className="w-full mb-4 p-2 border rounded" required />
-        <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Mật khẩu"
-          className="w-full mb-4 p-2 border rounded" required />
-        <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded">Đăng nhập</button>
-      </form>
+    <div className="login-container">
+      <div className="login-box">
+        <h2 className="login-title">Đăng nhập</h2>
+        <form onSubmit={handleSubmit} className="login-form">
+          <input
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="📧 Email"
+            className="login-input"
+            required
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            placeholder="🔒 Mật khẩu"
+            className="login-input"
+            required
+          />
+          <button type="submit" className="login-button">Đăng nhập</button>
+        </form>
+        <div className="login-divider">Hoặc</div>
+        <div className="google-login">
+          <GoogleLogin
+            onSuccess={handleGoogleLogin}
+            onError={handleGoogleFailure}
+          />
+        </div>
+      </div>
     </div>
   );
 }

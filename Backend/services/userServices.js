@@ -64,7 +64,6 @@ const updateUser = async (id, userData) => {
         if (userData.password) {
             user.password = userData.password; 
         }
-        console.log("User data before save:", user);
         await user.save();
         return user;
     } catch (error) {

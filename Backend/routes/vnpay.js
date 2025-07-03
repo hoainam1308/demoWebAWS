@@ -91,7 +91,6 @@ router.post('/create_payment_url', function (req, res, next) {
 
 router.get('/vnpay_return', async function (req, res, next) {
     let vnp_Params = req.query;
-    console.log(vnp_Params);
     let secureHash = vnp_Params['vnp_SecureHash'];
 
     delete vnp_Params['vnp_SecureHash'];

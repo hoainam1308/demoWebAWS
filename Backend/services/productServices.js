@@ -48,6 +48,21 @@ const updateProduct = async (id, productData) => {
     }
 }
 
+const updatedProductImage = async (id, imagePath) => {
+    try {
+        const product = await Product.findById(id);
+        if (!product) {
+            throw new Error('Product not found.');
+        }
+        product.images = imagePath; // Assuming images is a string or array of image paths
+        await product.save();
+        return product;
+    } catch (error) {
+        throw new Error('Error updating product image.');
+    }
+}
+
+
 const getProductBySlug = async (slug) => {
     try {
         const product = await Product.findOne({ slug }).populate('category');
@@ -86,5 +101,6 @@ module.exports = {
     getProductById,
     updateProduct,
     getProductBySlug,
-    getProductByCategory
+    getProductByCategory,
+    updatedProductImage,
 };

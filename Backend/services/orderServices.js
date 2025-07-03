@@ -18,7 +18,6 @@ const createOrder = async (userid, items) => {
         }
 
         const products = await Product.find({ _id: { $in: items.map(i => i.productId) } });
-
         const order = new Order({
             user: userid,
             totalPrice: 0 // tạm thời
@@ -36,7 +35,6 @@ const createOrder = async (userid, items) => {
                 total: unitPrice * item.quantity
             };
         });
-
         const totalPrice = orderDetails.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
         order.totalPrice = totalPrice;
         await order.save(); // cập nhật tổng tiền

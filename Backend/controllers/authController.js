@@ -22,8 +22,8 @@ const Login = async (req, res) => {
             return CreateErrorResponse(res, 401, 'Invalid email or password');
         }
 
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '3m' });
-        const exp = (new Date(Date.now() + 3 * 60 * 1000)).getTime();
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30m' });
+        const exp = (new Date(Date.now() + 30 * 60 * 1000)).getTime();
         res.cookie('token', token, {
             httpOnly: true,
             expires: new Date(exp),
@@ -90,8 +90,8 @@ const GgoogleLogin = async (req, res) => {
             user = newUser;
         }
 
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '3m' });
-        const exp = (new Date(Date.now() + 3 * 60 * 1000)).getTime();
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30m' });
+        const exp = (new Date(Date.now() + 30 * 60 * 1000)).getTime();
         res.cookie('token', token, {
             httpOnly: true,
             expires: new Date(exp),
@@ -104,9 +104,21 @@ const GgoogleLogin = async (req, res) => {
     }
 }
 
+const Logout = (req, res) => {
+    try {
+        res.clearCookie('token');
+        return CreateSuccessResponse(res, 200, 'Logout successful');
+    }
+    catch (error) {
+        console.error("Error during logout:", error);
+        return CreateErrorResponse(res, 500, 'Internal server error');
+    }
+}
+
 module.exports = {
     Login,
     Register,
     GgoogleLogin,
+    Logout,
     // Add more auth-related controller functions here as needed
 };

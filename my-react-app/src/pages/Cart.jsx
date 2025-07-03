@@ -1,97 +1,136 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import VnpayPaymentButton from '../components/VnpayPaymentButton.jsx'; // Import VnpayPaymentButton if needed
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import "./Cart.css";
+import { useAuth } from "../contexts/AuthContext";
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
-  const [paymentMethod, setPaymentMethod] = useState('cod');
+  const [paymentMethod, setPaymentMethod] = useState("cod");
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    if (!user) {
+      alert("Vui lòng đăng nhập để xem giỏ hàng.");
+      navigate("/login");
+      return;
+    }
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
     setCartItems(cart);
-  }, []);
+  }, [user]);
 
-  const totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const totalAmount = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
 
   const handleCheckout = async () => {
-    const userId = localStorage.getItem('userId');
-    if (!userId) return alert('Vui lòng đăng nhập trước.');
+    if (!user) {
+      alert("Vui lòng đăng nhập trước.");
+      return navigate("/login");
+    }
 
     try {
       const orderPayload = {
-        userId,
-        items: cartItems.map(item => ({
+        userId: user._id,
+        items: cartItems.map((item) => ({
           productId: item._id,
+          productName: item.productName,
+          images: item.images,
           quantity: item.quantity,
-          price: item.price
+          price: item.price,
         })),
-        paymentMethod
+        paymentMethod,
       };
 
-      const response = await axios.post('http://localhost:3000/orders/create', orderPayload, {
-        withCredentials: true
-      });
+      const response = await axios.post(
+        "http://localhost:3000/orders/create",
+        orderPayload,
+        {
+          withCredentials: true,
+        }
+      );
+      console.log("Order created:", response.data);
 
       const order = response.data.data;
-      if (paymentMethod === 'vnpay') {
-        const payRes = await axios.post('http://localhost:3000/vnpay/create_payment_url', {
-          amount: totalAmount,
-          orderId: order._id
-        });
-        window.location.href = payRes.data.url;
+      if (paymentMethod === "vnpay") {
+        const payRes = await axios.post(
+          "http://localhost:3000/vnpay/create_payment_url",
+          {
+            amount: totalAmount,
+            orderId: order._id,
+          }
+        );
+        window.location.href = payRes.data.data;
       } else {
-        alert('Đặt hàng thành công!');
-        localStorage.removeItem('cart');
-        navigate('/');
+        alert("Đặt hàng thành công!");
+        localStorage.removeItem("cart");
+        navigate("/");
       }
     } catch (err) {
-      console.error('Checkout error:', err);
-      alert('Có lỗi xảy ra khi thanh toán.');
+      console.error("Checkout error:", err);
+      alert("Có lỗi xảy ra khi thanh toán.");
     }
   };
 
+  const handleRemoveItem = (indexToRemove) => {
+    const newCart = cartItems.filter((_, index) => index !== indexToRemove);
+    setCartItems(newCart);
+    localStorage.setItem("cart", JSON.stringify(newCart));
+  };
+
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Giỏ hàng</h2>
+    <div className="cart-container">
+      <h2 className="cart-title">🛒 Giỏ hàng</h2>
       {cartItems.length === 0 ? (
-        <p>Không có sản phẩm trong giỏ hàng.</p>
+        <p className="empty-cart">Không có sản phẩm trong giỏ hàng.</p>
       ) : (
         <>
-          <ul className="space-y-4">
+          <ul className="cart-list">
             {cartItems.map((item, index) => (
-              <li key={index} className="flex justify-between items-center border p-4">
+              <li key={index} className="cart-item">
                 <div>
-                  <h3 className="font-semibold">{item.productName}</h3>
-                  <p>Số lượng: {item.quantity}</p>
+                  <img
+                    src={`http://localhost:3000${item.images}`}
+                    alt={item.productName}
+                    className="cart-image"
+                  />
+                  <h3 className="item-name">{item.productName}</h3>
+                  <p className="item-qty">Số lượng: {item.quantity}</p>
+                  <button
+                    className="remove-btn"
+                    onClick={() => handleRemoveItem(index)}
+                  >
+                    ❌ Xoá
+                  </button>
                 </div>
-                <div>{(item.price * item.quantity).toLocaleString()}₫</div>
+                <div className="item-total">
+                  {(item.price * item.quantity).toLocaleString()}₫
+                </div>
               </li>
             ))}
           </ul>
 
-          <div className="mt-6">
-            <p className="text-lg font-medium">Tổng cộng: {totalAmount.toLocaleString()}₫</p>
+          <div className="cart-total">
+            <p>
+              Tổng cộng: <span>{totalAmount.toLocaleString()}₫</span>
+            </p>
           </div>
 
-          <div className="mt-4">
-            <label className="mr-4">Phương thức thanh toán:</label>
+          <div className="payment-method">
+            <label>Phương thức thanh toán:</label>
             <select
               value={paymentMethod}
               onChange={(e) => setPaymentMethod(e.target.value)}
-              className="border px-2 py-1"
             >
               <option value="cod">Thanh toán khi nhận hàng (COD)</option>
               <option value="vnpay">Thanh toán qua VNPAY</option>
             </select>
           </div>
 
-          <button
-            onClick={handleCheckout}
-            className="mt-6 px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-          >
-            Thanh toán
+          <button className="checkout-btn" onClick={handleCheckout}>
+            ✅ Thanh toán
           </button>
         </>
       )}
