@@ -9,6 +9,9 @@ const orderSchema = new mongoose.Schema(
       enum: ["pending", "paid", "cancelled", "completed"],
       default: "pending",
     },
+    paymentInfo: {
+      type: Object
+    }
   },
   { timestamps: true }
 );

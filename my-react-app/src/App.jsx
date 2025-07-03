@@ -3,6 +3,7 @@ import LoginForm from './components/LoginForm';
 import UserInfo from './components/UserInfo';
 import axios from 'axios';
 import PaymentForm from "./components/PaymentForm";
+import OrderList from './components/OrderList';
 
 const App = () => {
   // const [user, setUser] = useState(null);
@@ -37,7 +38,7 @@ const App = () => {
     //   )}
     // </div>
     <div className="App">
-      <PaymentForm />
+      <OrderList />
     </div>
   );
 };

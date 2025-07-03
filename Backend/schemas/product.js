@@ -6,7 +6,8 @@ const productSchema = new mongoose.Schema({
   price: { type: Number, required: true },
   category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
   description: {type: String, default: ''},
-  stock: { type: Number, default: 0 }
+  stock: { type: Number, default: 0 },
+  images: String
 }, { timestamps: true });
 
 productSchema.pre('save', async function(next) {

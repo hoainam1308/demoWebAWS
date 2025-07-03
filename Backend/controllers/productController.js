@@ -22,6 +22,7 @@ const CreateProduct = async (req, res) => {
             return CreateErrorResponse(res, 404, 'Category not found');
         }
         body.category = category._id; // Set the category ID
+        body.images = req.file ? `/uploads/${req.file.filename}` : '';
         const newProduct = await createProduct(body);
         return CreateSuccessResponse(res, 201, newProduct);
     } catch (error) {

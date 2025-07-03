@@ -17,12 +17,12 @@ const CreateOrder = async (req, res) => {
         if (!user) {
             return CreateErrorResponse(res, 401, 'Unauthorized: User not authenticated');
         }
-        let orderData = req.body;
-        if (!orderData || !orderData.totalPrice) {
-            return CreateErrorResponse(res, 400, 'User and amount are required');
+        // Set user ID from authenticated user
+        const items = req.body.items; // Assuming items are sent in the request body
+        if (!items || items.length === 0) {
+            return CreateErrorResponse(res, 400, 'Bad Request: No items provided');
         }
-        orderData.user = user._id; // Set user ID from authenticated user
-        const newOrder = await createOrder(orderData);
+        const newOrder = await createOrder(user._id, items);
         return CreateSuccessResponse(res, 201, newOrder);
     } catch (error) {
         console.error("Error creating order:", error);

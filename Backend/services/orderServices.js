@@ -1,4 +1,6 @@
 const Order = require('../schemas/order');
+const OrderDetail = require('../schemas/orderDetail'); // Assuming you have an OrderDetail schema
+const Product = require('../schemas/product'); // Assuming you have a Product schema
 
 const getAllOrders = async () => {
     try {
@@ -9,16 +11,45 @@ const getAllOrders = async () => {
     }
 }
 
-const createOrder = async (orderData) => {
+const createOrder = async (userid, items) => {
     try {
-        const order = new Order(orderData);
+        if (!Array.isArray(items) || items.length === 0) {
+            throw new Error('Empty order items');
+        }
+
+        const products = await Product.find({ _id: { $in: items.map(i => i.productId) } });
+
+        const order = new Order({
+            user: userid,
+            totalPrice: 0 // tạm thời
+        });
         await order.save();
+
+        const orderDetails = items.map(item => {
+            const product = products.find(p => p._id.equals(item.productId));
+            const unitPrice = product?.price || 0;
+            return {
+                order: order._id,
+                product: product._id,
+                quantity: item.quantity,
+                unitPrice: unitPrice,
+                total: unitPrice * item.quantity
+            };
+        });
+
+        const totalPrice = orderDetails.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
+        order.totalPrice = totalPrice;
+        await order.save(); // cập nhật tổng tiền
+
+        await OrderDetail.insertMany(orderDetails);
+
         return order;
     } catch (error) {
         console.error('MongoDB Error:', error.message);
         throw new Error('Error creating order.');
     }
 };
+
 
 const getOrderById = async (id) => {
     try {

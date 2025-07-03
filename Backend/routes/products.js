@@ -2,11 +2,13 @@ const experss = require('express');
 const router = experss.Router();
 const {GetAllProducts, CreateProduct, GetProductById, UpdateProduct, GetProductBySlug, GetProductByCategory} = require('../controllers/productController');
 const {authenticate, authorize} = require('../middlewares/auth');
+const upload = require('../middlewares/uploads');
 
 // GET all products
 router.get('/', GetAllProducts);
 // Create a new product
 router.post('/create', CreateProduct);
+router.post('/createimg', upload.single('image'), CreateProduct);
 // Get product by ID
 router.get('/:id', GetProductById);
 // Update product

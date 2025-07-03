@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 require('dotenv').config();
 
+
 mongoose.connect('mongodb://localhost:27017/Booking').then(() => {
   console.log("MongoDB connected successfully");
 }).catch(err => {
@@ -19,7 +20,7 @@ app.set('view engine', 'jade');
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(secret_key));
-
+app.use('/uploads', express.static('uploads'));
 app.use(cors({
   origin: 'http://localhost:5173',
   credentials: true

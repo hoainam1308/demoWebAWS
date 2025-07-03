@@ -4,7 +4,7 @@ const { GetAllOrders, CreateOrder, GetOrderById, GetOrderByEmail, GetOrderByUser
 const { authenticate, authorize } = require('../middlewares/auth');
 
 // GET all orders
-router.get('/', authenticate, authorize(["STAFF", "ADMIN"]), GetAllOrders);
+router.get('/', GetAllOrders);
 // Create a new order
 router.post('/create', authenticate, authorize(["USER"]), CreateOrder);
 // Update order status

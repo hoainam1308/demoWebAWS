@@ -1,5 +1,6 @@
 const Product = require('../schemas/product');
 
+
 const getAllProducts = async () => {
     try {
         const products = await Product.find().populate('category', 'categoryName');
@@ -64,6 +65,20 @@ const getProductByCategory = async (categoryId) => {
         throw new Error('Error fetching products by category.');
     }
 }
+
+const createProductWithImages = async (productData, images) => {
+    try {
+        const product = new Product({
+            ...productData,
+            images: images.join(',') // Assuming images is an array of image paths
+        });
+        await product.save();
+        return product;
+    } catch (error) {
+        console.error('MongoDB Error:', error.message);
+        throw new Error('Error creating product with images.');
+    }
+};
 
 module.exports = {
     getAllProducts,
