@@ -1,4 +1,4 @@
-const {getAllOrders, createOrder, getOrderById, getOrderByUserId, getOrderByEmail, updateOrder, deleteOrder} = require('../services/orderServices');
+const {getAllOrders, createOrder, getOrderById, getOrderByUserId, getOrderByEmail, updateOrder, deleteOrder, getDetailsByOrderId} = require('../services/orderServices');
 const { CreateSuccessResponse, CreateErrorResponse } = require('../handlers/responseHandler');
 
 const GetAllOrders = async (req, res) => {
@@ -58,6 +58,21 @@ const GetOrderByUserId = async (req, res) => {
     }
 }
 
+const GetMyOrders = async (req, res) => {
+    try {
+        console.log("Fetching orders for user:", req.user);
+        const userId = req.user._id; // Assuming user ID is passed as a URL parameter
+        const orders = await getOrderByUserId(userId);
+        if (!orders || orders.length === 0) {
+            return CreateErrorResponse(res, 404, 'No orders found for this user');
+        }
+        return CreateSuccessResponse(res, 200, orders);
+    } catch (error) {
+        console.error("Error fetching orders by user ID:", error);
+        return CreateErrorResponse(res, 500, 'Internal server error');
+    }
+}
+
 const GetOrderByEmail = async (req, res) => {
     try {
         const email = req.params.email; // Assuming email is passed as a URL parameter
@@ -68,6 +83,17 @@ const GetOrderByEmail = async (req, res) => {
         return CreateSuccessResponse(res, 200, order);
     } catch (error) {
         console.error("Error fetching order by email:", error);
+        return CreateErrorResponse(res, 500, 'Internal server error');
+    }
+}
+
+const GetDetailsByOrderId = async (req, res) => {
+    try {
+        const orderId = req.params.id; // Assuming order ID is passed as a URL parameter
+        const orderDetails = await getDetailsByOrderId(orderId);
+        return CreateSuccessResponse(res, 200, orderDetails);
+    } catch (error) {
+        console.error("Error fetching order details by order ID:", error);
         return CreateErrorResponse(res, 500, 'Internal server error');
     }
 }
@@ -107,5 +133,7 @@ module.exports = {
     GetOrderByUserId,
     GetOrderByEmail,
     UpdateOrder,
-    DeleteOrder
+    DeleteOrder,
+    GetMyOrders,
+    GetDetailsByOrderId
 };

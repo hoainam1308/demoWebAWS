@@ -116,7 +116,7 @@ router.get('/vnpay_return', async function (req, res, next) {
         order.paymentInfo = vnp_Params; // lưu toàn bộ thông tin thanh toán
         order.status = vnp_Params['vnp_ResponseCode'] === '00' ? 'paid' : 'failed';
         await order.save();
-        res.render('success', {code: vnp_Params['vnp_ResponseCode']})
+        res.redirect(`http://localhost:5173/payment-success?vnp_ResponseCode=${vnp_Params['vnp_ResponseCode']}`);
     } else{
         res.render('success', {code: '97'})
     }

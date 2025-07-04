@@ -21,6 +21,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(secret_key));
 app.use('/uploads', express.static('uploads'));
+app.use(express.static('public'));
+
 app.use(cors({
   origin: 'http://localhost:5173',
   credentials: true

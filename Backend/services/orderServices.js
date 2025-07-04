@@ -58,6 +58,15 @@ const getOrderById = async (id) => {
     }
 }
 
+const getDetailsByOrderId = async (orderId) => {
+    try {
+        const orderDetails = await OrderDetail.find({ order: orderId }).populate('product', 'productName price images');
+        return orderDetails;
+    } catch (error) {
+        throw new Error('Error fetching order details by order ID.');
+    }
+}
+
 const getOrderByUserId = async (userId) => {
     try {
         const orders = await Order.find({ user: userId }).populate('user', 'email');
@@ -101,6 +110,7 @@ module.exports = {
     updateOrder,
     deleteOrder,
     getOrderByUserId,
-    getOrderByEmail
+    getOrderByEmail,
+    getDetailsByOrderId,
     // Add more order-related functions here as needed
 };

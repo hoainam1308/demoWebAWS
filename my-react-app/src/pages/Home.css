@@ -1,10 +1,8 @@
 .product-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* 👈 Căn giữa các item */
   gap: 24px;
-  max-width: 1000px;   /* ✅ Giới hạn chiều rộng của grid */
-  margin: 0 auto;       /* ✅ Căn giữa theo chiều ngang */
-  justify-content: center; /* ✅ Căn giữa các item khi thiếu */
 }
 
 .product-card {

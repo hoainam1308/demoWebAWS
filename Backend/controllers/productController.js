@@ -4,7 +4,12 @@ const { CreateSuccessResponse, CreateErrorResponse } = require('../handlers/resp
 const slugify = require('slugify');
 const GetAllProducts = async (req, res) => {
     try {
-        const products = await getAllProducts();
+        const { category, keyword } = req.query;
+        const filter = {};
+
+        if (category) filter.category = category;
+        if (keyword) filter.productName = { $regex: keyword, $options: "i" };
+        const products = await getAllProducts(filter);
         return CreateSuccessResponse(res, 200, products);
     } catch (error) {
         console.error("Error fetching products:", error);

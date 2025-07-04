@@ -1,10 +1,12 @@
 const Product = require('../schemas/product');
 
 
-const getAllProducts = async () => {
+const getAllProducts = async (filter) => {
     try {
-        const products = await Product.find().populate('category', 'categoryName');
-        return products;
+        if (filter) {
+            return await Product.find(filter).populate('category', 'categoryName');
+        }
+        return await Product.find().populate('category', 'categoryName');
     } catch (error) {
         throw new Error('Error fetching products.');
     }
